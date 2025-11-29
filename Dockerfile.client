@@ -1,0 +1,27 @@
+# Dockerfile for Federated Learning Client
+
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY src/ ./src/
+COPY configs/ ./configs/
+
+# Create directories
+RUN mkdir -p logs data
+
+EXPOSE 8081
+
+ENV PYTHONUNBUFFERED=1
+
+# Run client
+CMD ["python", "src/client/main.py", "--client-id", "${CLIENT_ID}", "--config", "configs/client_config.yaml"]

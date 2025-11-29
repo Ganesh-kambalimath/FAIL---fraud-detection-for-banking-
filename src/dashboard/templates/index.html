@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Federated Learning Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>FAIL Fraud Detection Dashboard</h1>
+        <div class="grid-container">
+            <div class="grid-item" id="simulation-status">
+                <h2>Simulation Status</h2>
+                <p><strong>Status:</strong> <span id="status">--</span></p>
+                <p><strong>Current Round:</strong> <span id="current-round">--</span> / <span id="total-rounds">--</span></p>
+            </div>
+            <div class="grid-item" id="performance-metrics">
+                <h2>Performance Metrics</h2>
+                <p><strong>Accuracy:</strong> <span id="accuracy">--</span></p>
+                <p><strong>Precision:</strong> <span id="precision">--</span></p>
+                <p><strong>Recall:</strong> <span id="recall">--</span></p>
+                <p><strong>F1 Score:</strong> <span id="f1-score">--</span></p>
+                <p><strong>AUC-ROC:</strong> <span id="auc-roc">--</span></p>
+            </div>
+            <div class="grid-item" id="privacy-budget">
+                <h2>Privacy Budget</h2>
+                <p><strong>Epsilon Spent:</strong> <span id="epsilon-spent">--</span> / <span id="epsilon-total">--</span></p>
+                <p><strong>Delta:</strong> <span id="delta">--</span></p>
+                <p><strong>Privacy Preserved:</strong> <span id="privacy-preserved">--</span></p>
+            </div>
+            <div class="grid-item" id="financial-impact">
+                <h2>Financial Impact Analysis</h2>
+                <p><strong>Prevented Fraud:</strong> <span id="prevented-fraud">--</span></p>
+                <p><strong>Net Benefit:</strong> <span id="net-benefit">--</span></p>
+                <p><strong>ROI:</strong> <span id="roi">--</span></p>
+            </div>
+            <div class="grid-item chart-container">
+                <h2>Accuracy per Round</h2>
+                <canvas id="accuracy-chart"></canvas>
+            </div>
+            <div class="grid-item chart-container">
+                <h2>Loss per Round</h2>
+                <canvas id="loss-chart"></canvas>
+            </div>
+        </div>
+    </div>
+    <script>
+        const accuracyChartCtx = document.getElementById('accuracy-chart').getContext('2d');
+        const lossChartCtx = document.getElementById('loss-chart').getContext('2d');
+        let accuracyChart, lossChart;
+
+        function createOrUpdateChart(chartInstance, ctx, label, labels, data) {
+            if (chartInstance) {
+                chartInstance.data.labels = labels;
+                chartInstance.data.datasets[0].data = data;
+                chartInstance.update();
+            } else {
+                return new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: label,
+                            data: data,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch('/data');
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error(data.error);
+                    return;
+                }
+
+                document.getElementById('status').textContent = data.status || '--';
+                document.getElementById('current-round').textContent = data.current_round || '--';
+                document.getElementById('total-rounds').textContent = data.total_rounds || '--';
+
+                if (data.performance_metrics) {
+                    document.getElementById('accuracy').textContent = data.performance_metrics.Accuracy.toFixed(4);
+                    document.getElementById('precision').textContent = data.performance_metrics.Precision.toFixed(4);
+                    document.getElementById('recall').textContent = data.performance_metrics.Recall.toFixed(4);
+                    document.getElementById('f1-score').textContent = data.performance_metrics['F1 Score'].toFixed(4);
+                    document.getElementById('auc-roc').textContent = data.performance_metrics['AUC-ROC'].toFixed(4);
+                }
+
+                if (data.privacy_budget) {
+                    document.getElementById('epsilon-spent').textContent = data.privacy_budget['Epsilon spent'].toFixed(4);
+                    document.getElementById('epsilon-total').textContent = data.privacy_budget.Epsilon;
+                    document.getElementById('delta').textContent = data.privacy_budget.Delta;
+                    document.getElementById('privacy-preserved').textContent = data.privacy_budget['Privacy preserved'];
+                }
+                
+                if(data.financial_impact){
+                    document.getElementById('prevented-fraud').textContent = data.financial_impact['Prevented Fraud'];
+                    document.getElementById('net-benefit').textContent = data.financial_impact['Net Benefit'];
+                    document.getElementById('roi').textContent = data.financial_impact['ROI'];
+                }
+
+                if (data.history && data.history.accuracy) {
+                    const rounds = Array.from({length: data.history.accuracy.length}, (_, i) => i + 1);
+                    accuracyChart = createOrUpdateChart(accuracyChart, accuracyChartCtx, 'Accuracy', rounds, data.history.accuracy);
+                }
+                
+                if (data.history && data.history.loss) {
+                    const rounds = Array.from({length: data.history.loss.length}, (_, i) => i + 1);
+                    lossChart = createOrUpdateChart(lossChart, lossChartCtx, 'Loss', rounds, data.history.loss);
+                }
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        setInterval(fetchData, 5000); // Fetch data every 5 seconds
+        fetchData(); // Initial fetch
+    </script>
+</body>
+</html>

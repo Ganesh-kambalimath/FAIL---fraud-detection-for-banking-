@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: federated_fraud
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secure_password_change_me
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - federated_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - federated_network
+
+  # Federated Learning Server
+  fl_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      - DB_PASSWORD=secure_password_change_me
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./logs:/app/logs
+      - ./models:/app/models
+      - ./runs:/app/runs
+    networks:
+      - federated_network
+
+  # Client Bank A
+  fl_client_a:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    environment:
+      - CLIENT_ID=bank_a
+      - CLIENT_TOKEN=token_bank_a_change_me
+    depends_on:
+      - fl_server
+    volumes:
+      - ./data/bank_a:/app/data
+      - ./logs:/app/logs
+    networks:
+      - federated_network
+
+  # Client Bank B
+  fl_client_b:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    environment:
+      - CLIENT_ID=bank_b
+      - CLIENT_TOKEN=token_bank_b_change_me
+    depends_on:
+      - fl_server
+    volumes:
+      - ./data/bank_b:/app/data
+      - ./logs:/app/logs
+    networks:
+      - federated_network
+
+  # Client Bank C
+  fl_client_c:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    environment:
+      - CLIENT_ID=bank_c
+      - CLIENT_TOKEN=token_bank_c_change_me
+    depends_on:
+      - fl_server
+    volumes:
+      - ./data/bank_c:/app/data
+      - ./logs:/app/logs
+    networks:
+      - federated_network
+
+volumes:
+  postgres_data:
+
+networks:
+  federated_network:
+    driver: bridge

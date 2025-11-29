@@ -1,0 +1,122 @@
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8080
+  num_rounds: 100
+  min_clients: 1
+  max_clients: 10
+  timeout: 300
+  
+# Federated Learning Parameters
+federated:
+  algorithm: "FedAvg"  # Options: FedAvg, FedProx, FedAdam, FedYogi
+  aggregation_strategy: "weighted_average"  # Options: weighted_average, median, trimmed_mean
+  client_selection: "random"  # Options: random, proportional, contribution_based
+  
+# Privacy Settings
+privacy:
+  differential_privacy:
+    enabled: true
+    epsilon: 0.5  # Privacy budget (lower = more privacy)
+    delta: 1e-5
+    noise_multiplier: 1.1
+    max_grad_norm: 1.0
+    
+  homomorphic_encryption:
+    enabled: true
+    scheme: "CKKS"  # Options: CKKS, BFV
+    poly_modulus_degree: 8192
+    coeff_mod_bit_sizes: [60, 40, 40, 60]
+    scale: 2**40
+    
+  secure_aggregation:
+    enabled: true
+    threshold: 0.67  # Minimum fraction of clients needed
+
+# Model Configuration
+model:
+  architecture: "FraudDetectionNN"
+  input_size: 30
+  hidden_layers: [128, 64, 32]
+  output_size: 1
+  dropout: 0.3
+  activation: "relu"
+  batch_norm: true
+  
+# Training Parameters
+training:
+  local_epochs: 5
+  batch_size: 32
+  learning_rate: 0.001
+  optimizer: "adam"  # Options: adam, sgd, adamw
+  weight_decay: 1e-5
+  momentum: 0.9  # For SGD
+  
+# Dataset
+data:
+  name: "credit_card_fraud"
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  sampling_strategy: "imbalanced"  # Options: balanced, imbalanced, smote
+  
+# Security
+security:
+  ssl_enabled: true
+  cert_path: "certs/server.crt"
+  key_path: "certs/server.key"
+  authentication: true
+  token_expiry: 3600
+  max_update_norm: 10.0  # Defense against gradient attacks
+  
+  # Byzantine Defense
+  byzantine_defense:
+    enabled: true
+    method: "krum"  # Options: krum, multi_krum, trimmed_mean, median
+    tolerance: 0.2
+    
+# Logging
+logging:
+  level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR
+  file: "logs/server.log"
+  max_size: 10485760  # 10 MB
+  backup_count: 5
+  console_output: true
+  
+# Monitoring
+monitoring:
+  tensorboard:
+    enabled: true
+    log_dir: "runs/server"
+    
+  wandb:
+    enabled: false
+    project: "federated-fraud-detection"
+    entity: "your-team"
+    
+  prometheus:
+    enabled: true
+    port: 9090
+    
+# Performance
+performance:
+  num_workers: 4
+  pin_memory: true
+  prefetch_factor: 2
+  
+# Database
+database:
+  type: "postgresql"  # Options: postgresql, mongodb, sqlite
+  host: "localhost"
+  port: 5432
+  name: "federated_fraud"
+  user: "admin"
+  password: "${DB_PASSWORD}"  # Use environment variable
+  
+# Cache
+cache:
+  type: "redis"
+  host: "localhost"
+  port: 6379
+  db: 0
+  ttl: 3600

@@ -1,0 +1,99 @@
+# Client Configuration
+client:
+  id: "bank_a"  # Unique identifier
+  name: "Bank A"
+  host: "localhost"
+  port: 8081
+  
+# Server Connection
+server:
+  host: "localhost"
+  port: 8080
+  retry_attempts: 5
+  retry_delay: 5
+  timeout: 300
+  
+# Privacy Settings
+privacy:
+  differential_privacy:
+    enabled: true
+    epsilon: 0.5
+    delta: 1e-5
+    noise_multiplier: 1.1
+    max_grad_norm: 1.0
+    
+  local_differential_privacy:
+    enabled: true
+    epsilon_local: 1.0
+    
+# Model Configuration
+model:
+  architecture: "FraudDetectionNN"
+  input_size: 30
+  hidden_layers: [128, 64, 32]
+  output_size: 1
+  
+# Training Parameters
+training:
+  local_epochs: 5
+  batch_size: 32
+  learning_rate: 0.001
+  optimizer: "adam"
+  weight_decay: 0.0001
+  
+# Local Dataset
+data:
+  path: "data/client_data"
+  format: "csv"  # Options: csv, parquet, json
+  features_file: "features.csv"
+  labels_file: "labels.csv"
+  preprocess: true
+  normalize: true
+  
+  # Data augmentation
+  augmentation:
+    enabled: false
+    methods: ["smote", "random_oversampling"]
+    
+# Security
+security:
+  ssl_enabled: true
+  cert_path: "certs/client.crt"
+  key_path: "certs/client.key"
+  ca_cert: "certs/ca.crt"
+  authentication: true
+  token: "${CLIENT_TOKEN}"  # Use environment variable
+  
+  # Local Model Protection
+  model_encryption: true
+  gradient_clipping: true
+  max_gradient_norm: 5.0
+  
+# Logging
+logging:
+  level: "INFO"
+  file: "logs/client.log"
+  max_size: 10485760
+  backup_count: 5
+  console_output: true
+  
+# Resource Management
+resources:
+  gpu: true
+  gpu_id: 0
+  max_memory: 8192  # MB
+  num_workers: 2
+  
+# Monitoring
+monitoring:
+  tensorboard:
+    enabled: true
+    log_dir: "runs/client"
+    
+  metrics:
+    - "accuracy"
+    - "precision"
+    - "recall"
+    - "f1_score"
+    - "auc_roc"
+    - "loss"
