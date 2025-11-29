@@ -101,7 +101,10 @@ python src/client/main.py --client-id bank_c --config configs/client_config.yaml
 python src/dashboard/app.py
 # Access at http://localhost:5000
 ```
-
+## Quick execute 
+### step 1 : create a data folder 
+### step 2 : load your dataset with ".csv"
+### step 3 : double click "run_project" file
 ## Project Structure
 
 ```
@@ -173,7 +176,7 @@ pytest --cov=src tests/
 
 This framework is designed to comply with:
 - 🇪🇺 **GDPR** (General Data Protection Regulation)
-- 🇺🇸 **CCPA** (California Consumer Privacy Act)
+- 🇺🇸 **CPA** ( Consumer Privacy Act)
 - 🏥 **HIPAA** (Health Insurance Portability and Accountability Act)
 - 💰 **PCI DSS** (Payment Card Industry Data Security Standard)
 
@@ -216,9 +219,9 @@ Based on research from:
 ## Contact
 
 For questions or support:
-- Email: support@yourorg.com
+- Email: [Email]( ganeshsdmcet@gmail.com )
 - Issues: GitHub Issues
-- Discord: [Community Server]
+
 
 ## Roadmap
 
